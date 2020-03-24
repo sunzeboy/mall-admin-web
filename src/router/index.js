@@ -358,7 +358,71 @@ export const asyncRouterMap = [
       }
     ]
   },
-  {path: '*', redirect: '/404', hidden: true}
+  {
+    path:'/dms',
+    component: Layout,
+    redirect: '/dms/ke',
+    name: 'dms',
+    meta: {title: '数据管理', icon: 'ums'},
+    children: [
+      {
+        path: 'ke',
+        name: 'ke',
+        component: () => import('@/views/dms/ke/index'),
+        meta: {title: '科目', icon: 'ums-admin'}
+      },
+      {
+        path: 'shu',
+        name: 'shu',
+        component: () => import('@/views/dms/shu/index'),
+        meta: {title: '属', icon: 'ums-role'}
+      },
+      {
+        path: 'zhong',
+        name: 'zhong',
+        component: () => import('@/views/dms/zhong/index'),
+        meta: {title: '种'}
+      },
+      {
+        path: 'jun',
+        name: 'jun',
+        component: () => import('@/views/dms/jun/index'),
+        meta: {title: '菌株'},
+      },
+      {
+        path: 'metabolite',
+        name: 'metabolite',
+        component: () => import('@/views/dms/metabolite/index'),
+        meta: {title: '代谢产物', icon: 'ums-menu'}
+      },
+      {
+        path: 'junMetabolite',
+        name: 'junMetabolite',
+        component: () => import('@/views/dms/junMetabolite/index'),
+        meta: {title: '菌株与代谢产物关系'},
+      },
+      {
+        path: 'disease',
+        name: 'disease',
+        component: () => import('@/views/dms/disease/index'),
+        meta: {title: '疾病'},
+      },
+      {
+        path: 'diseaseJun',
+        name: 'diseaseJun',
+        component: () => import('@/views/dms/diseaseJun/index'),
+        meta: {title: '疾病与菌株关系', icon: 'ums-resource'}
+      },
+      {
+        path: 'complication',
+        name: 'complication',
+        component: () => import('@/views/dms/complication/index'),
+        meta: {title: '并发症'},
+      }
+    ]
+  },
+  {path: '*', redirect: '/404', hidden: true},
+  
 ]
 
 export default new Router({
