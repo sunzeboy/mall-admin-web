@@ -92,3 +92,35 @@ export function updateSpecies(data) {
     data:data
   })
 }
+
+
+export function fetchStrainList(params) {
+  return request({
+    url:'/bacteria/strain/listAll',
+    method:'get',
+    params:params
+  })
+}
+export function createStrain(data) {
+  return request({
+    url:'/bacteria/strain/create',
+    method:'post',
+    data:data
+  })
+}
+
+export function deleteStrain(data) {
+  return request({
+    url:'/bacteria/strain/delete',
+    method:'post',
+    data:data
+  })
+}
+
+export function updateStrain(data) {
+  return request({
+    url:'/bacteria/strain/update',
+    method:'post',
+    data:data
+  })
+}
