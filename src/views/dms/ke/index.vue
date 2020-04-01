@@ -193,7 +193,7 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       }).then(() => {
-        deleteKe(row).then(response => {
+        deleteKe(row.id).then(response => {
           this.$message({
             message: "删除成功",
             type: "success",

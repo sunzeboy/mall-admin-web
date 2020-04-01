@@ -16,7 +16,7 @@ export function createKe(data) {
 
 export function deleteKe(data) {
   return request({
-    url:'/bacteria/ke/delete',
+    url:'/bacteria/ke/delete/'+data,
     method:'post',
     data:data
   })
@@ -47,7 +47,7 @@ export function createShu(data) {
 
 export function deleteShu(data) {
   return request({
-    url:'/bacteria/genus/delete',
+    url:'/bacteria/genus/delete/'+data,
     method:'post',
     data:data
   })
@@ -79,7 +79,7 @@ export function createSpecies(data) {
 
 export function deleteSpecies(data) {
   return request({
-    url:'/bacteria/species/delete',
+    url:'/bacteria/species/delete/'+data,
     method:'post',
     data:data
   })
@@ -111,7 +111,7 @@ export function createStrain(data) {
 
 export function deleteStrain(data) {
   return request({
-    url:'/bacteria/strain/delete',
+    url:'/bacteria/strain/delete/'+data,
     method:'post',
     data:data
   })
@@ -120,6 +120,37 @@ export function deleteStrain(data) {
 export function updateStrain(data) {
   return request({
     url:'/bacteria/strain/update',
+    method:'post',
+    data:data
+  })
+}
+
+export function fetchProductsList(params) {
+  return request({
+    url:'/bacteria/products/listAll',
+    method:'get',
+    params:params
+  })
+}
+export function createProducts(data) {
+  return request({
+    url:'/bacteria/products/create',
+    method:'post',
+    data:data
+  })
+}
+
+export function deleteProducts(data) {
+  return request({
+    url:'/bacteria/products/delete/'+data,
+    method:'post',
+    data:data
+  })
+}
+
+export function updateProducts(data) {
+  return request({
+    url:'/bacteria/products/update',
     method:'post',
     data:data
   })
