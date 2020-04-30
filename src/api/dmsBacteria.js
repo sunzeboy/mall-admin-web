@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+
 export function fetchList(params) {
   return request({
     url:'/bacteria/ke/listAll',
@@ -151,6 +152,69 @@ export function deleteProducts(data) {
 export function updateProducts(data) {
   return request({
     url:'/bacteria/products/update',
+    method:'post',
+    data:data
+  })
+}
+
+
+export function createProductsRelations(params) {
+  return request({
+    url:'/bacteria/productsRelations/create',
+    method:'post',
+    data:params
+  })
+}
+
+export function fetchProductsRelationsList(params) {
+  return request({
+    url:'/bacteria/productsRelations/findAll',
+    method:'get',
+    params:params
+  })
+}
+
+export function updateProductsRelations(params) {
+  return request({
+    url:'/bacteria/productsRelations/update',
+    method:'get',
+    params:params
+  })
+}
+export function deleteProductsRelations(params) {
+  return request({
+    url:'/bacteria/productsRelations/delete',
+    method:'post',
+    data:params
+  })
+}
+
+export function fetchDiseaseList(params) {
+  return request({
+    url:'/disease/listAll',
+    method:'get',
+    params:params
+  })
+}
+export function createDisease(data) {
+  return request({
+    url:'/disease/create',
+    method:'post',
+    data:data
+  })
+}
+
+export function deleteDisease(data) {
+  return request({
+    url:'/disease/delete/'+data,
+    method:'post',
+    data:data
+  })
+}
+
+export function updateDisease(data) {
+  return request({
+    url:'/disease/update',
     method:'post',
     data:data
   })

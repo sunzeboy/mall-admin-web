@@ -21,17 +21,17 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   {path: '/login', component: () => import('@/views/login/index'), hidden: true},
   {path: '/404', component: () => import('@/views/404'), hidden: true},
-  {
-    path: '',
-    component: Layout,
-    redirect: '/home',
-    children: [{
-      path: 'home',
-      name: 'home',
-      component: () => import('@/views/home/index'),
-      meta: {title: '首页', icon: 'home'}
-    }]
-  }
+  // {
+  //   path: '',
+  //   component: Layout,
+  //   redirect: '/home',
+  //   children: [{
+  //     path: 'home',
+  //     name: 'home',
+  //     component: () => import('@/views/home/index'),
+  //     meta: {title: '首页', icon: 'home'}
+  //   }]
+  // }
 ]
 
 export const asyncRouterMap = [
@@ -359,7 +359,7 @@ export const asyncRouterMap = [
     ]
   },
   {
-    path:'/dms',
+    path: '/dms',
     component: Layout,
     redirect: '/dms/ke',
     name: 'dms',
@@ -399,7 +399,7 @@ export const asyncRouterMap = [
         path: 'junMetabolite',
         name: 'junMetabolite',
         component: () => import('@/views/dms/junMetabolite/index'),
-        meta: {title: '菌株与代谢产物关系'},
+        meta: {title: '菌群与代谢产物关系'},
       },
       {
         path: 'disease',
@@ -421,7 +421,7 @@ export const asyncRouterMap = [
       }
     ]
   },
-  {path: '*', redirect: '/404', hidden: true},
+  {path: '*', redirect: '/dms', hidden: true},
   
 ]
 
