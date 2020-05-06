@@ -41,7 +41,7 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets" style="margin-top: 5px;"></i>
       <span style="margin-top: 5px;">数据列表</span>
-      <el-button class="btn-add" @click="addStrain()" size="mini">
+      <el-button class="btn-add" @click="add()" size="mini">
         添加
       </el-button>
     </el-card>
@@ -63,12 +63,12 @@
         </el-table-column>
         <el-table-column label="菌群对象" width="200" align="center">
           <template slot-scope="scope">
-            {{ scope.row.strain_international_no }}
+            {{ scope.row.bacteriaNameZh }}
           </template>
         </el-table-column>
         <el-table-column label="代谢产物" width="300" align="center">
           <template slot-scope="scope">
-            {{ scope.row.products_name_zh }}
+            {{ scope.row.productsNameZh }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
@@ -111,7 +111,7 @@
       >
         <el-form-item label="菌群">
           <el-autocomplete
-            v-model="sel_jun.strainInternationalNo"
+            v-model="sel_jun.bacteriaNameZh"
             :fetch-suggestions="querySearchJunAsync"
             placeholder="菌群"
             @select="handleSelectJun"
@@ -138,16 +138,12 @@
 
 <script>
 import {
-  fetchStrainList,
-  fetchSpeciesList,
+  fetchList,
   fetchProductsList,
   fetchProductsRelationsList,
   createProductsRelations,
   updateProductsRelations,
   deleteProductsRelations,
-  createStrain,
-  updateStrain,
-  deleteStrain,
 } from "@/api/dmsBacteria.js";
 const defaultListQuery = {
   keyword: null,
@@ -168,11 +164,7 @@ export default {
       dialogVisible: false,
       dialogTitle: "",
       superiorList: null,
-      superior: {
-        speciesName: "",
-        speciesNameZh: "",
-        id: 0,
-      },
+      superior: {},
       rules: {
         name: [
           {
@@ -182,17 +174,8 @@ export default {
           },
         ],
       },
-      sel_jun: {
-        id: "",
-        strainInternationalNo: "",
-        strainInsideNo: "",
-        speciesId: 0,
-      },
-      sel_product: {
-        id: "",
-        productsName: "",
-        productsNameZh: "",
-      },
+      sel_jun: {},
+      sel_product: {},
     };
   },
   created() {
@@ -200,14 +183,14 @@ export default {
   },
   methods: {
     querySearchJunAsync(queryString, cb) {
-      fetchStrainList({
+      fetchList({
         keyword: queryString,
         pageNum: 1,
         pageSize: 50,
       }).then((response) => {
         for (let i = 0; i < response.data.list.length; i++) {
           const element = response.data.list[i];
-          element.value = element.strainInsideNo;
+          element.value = element.bacteriaNameZh;
         }
         cb(response.data.list);
       });
@@ -247,24 +230,20 @@ export default {
     },
     getList() {
       this.listLoading = true;
-      // fetchStrainList(this.listQuery).then((response) => {
-      //   this.listLoading = false;
-      //   this.list = response.data.list;
-      //   this.total = response.data.total;
-      // });
+
       fetchProductsRelationsList(this.listQuery).then((response) => {
         this.listLoading = false;
         this.list = response.data.list;
         this.total = response.data.total;
       });
-      // fetchSpeciesList().then((response) => {
-      //   this.listLoading = false;
-      //   this.superiorList = response.data.list;
-      // });
+
     },
-    resetStrain() {},
-    addStrain() {
-      this.resetStrain();
+    reset() {
+      this.sel_jun = {};
+      this.sel_product = {};
+    },
+    add() {
+      this.reset();
       this.dialogVisible = true;
       this.dialogTitle = "添加关系";
     },
@@ -292,7 +271,7 @@ export default {
             type: "success",
             duration: 1000,
           });
-          this.resetStrain();
+          this.reset();
           this.getList();
         });
       });
@@ -300,19 +279,17 @@ export default {
     handleUpdate(index, row) {
       this.dialogVisible = true;
       this.dialogTitle = "编辑菌株";
-      this.sel_product.id = row.products_id;
-      this.sel_product.productsNameZh = row.products_name_zh;
-      this.sel_jun.id = row.strain_id;
-      this.sel_jun.strainInternationalNo = row.strain_international_no;
-      console.log(row.strain_international_no);
-      
+      this.sel_product.id = row.productsId;
+      this.sel_product.productsNameZh = row.productsNameZh;
+      this.sel_jun.id = row.bacteriaId;
+      this.sel_jun.bacteriaNameZh = row.bacteriaNameZh;
     },
     handleConfirm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           if (this.dialogTitle === "添加关系") {
             createProductsRelations({
-              strainId: this.sel_jun.id,
+              bacteriaId: this.sel_jun.id,
               productsId: this.sel_product.id,
             }).then((response) => {
               this.$message({
@@ -320,7 +297,7 @@ export default {
                 type: "success",
                 duration: 1000,
               });
-              this.resetStrain();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });
@@ -335,7 +312,7 @@ export default {
                 type: "success",
                 duration: 1000,
               });
-              this.resetStrain();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });

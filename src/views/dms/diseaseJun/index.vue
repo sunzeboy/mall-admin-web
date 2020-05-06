@@ -31,7 +31,7 @@
             <el-input
               v-model="listQuery.keyword"
               class="input-width"
-              placeholder="菌群对象/代谢产物"
+              placeholder="菌群对象/疾病"
               clearable
             ></el-input>
           </el-form-item>
@@ -68,7 +68,7 @@
         </el-table-column>
         <el-table-column label="疾病" width="300" align="center">
           <template slot-scope="scope">
-            {{ scope.row.products_name_zh }}
+            {{ scope.row.disease_name_zh }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
@@ -119,10 +119,10 @@
         </el-form-item>
         <el-form-item label="疾病">
           <el-autocomplete
-            v-model="sel_product.productsNameZh"
-            :fetch-suggestions="querySearchProductAsync"
+            v-model="sel_disease.diseaseNameZh"
+            :fetch-suggestions="querySearchDiseaseAsync"
             placeholder="疾病"
-            @select="handleSelectProduct"
+            @select="handleSelectDisease"
           ></el-autocomplete>
         </el-form-item>
       </el-form>
@@ -138,13 +138,13 @@
 
 <script>
 import {
-  fetchStrainList,
+  fetchDiseaseList,
+  createDiseaseRelations,
+  fetchDiseaseRelationsList,
+  updateDiseaseRelations,
+  deleteDiseaseRelations,
   fetchSpeciesList,
-  fetchProductsList,
-  fetchProductsRelationsList,
-  createProductsRelations,
-  updateProductsRelations,
-  deleteProductsRelations,
+  fetchStrainList,
   createStrain,
   updateStrain,
   deleteStrain,
@@ -155,7 +155,7 @@ const defaultListQuery = {
   pageSize: 5,
 };
 export default {
-  name: "productsRelations",
+  name: "diseaseRelations",
   data() {
     return {
       list: null,
@@ -188,10 +188,11 @@ export default {
         strainInsideNo: "",
         speciesId: 0,
       },
-      sel_product: {
+      sel_disease: {
         id: "",
-        productsName: "",
-        productsNameZh: "",
+        diseaseName: "",
+        diseaseType: "",
+        diseaseNameZh: "",
       },
     };
   },
@@ -212,15 +213,15 @@ export default {
         cb(response.data.list);
       });
     },
-    querySearchProductAsync(queryString, cb) {
-      fetchProductsList({
+    querySearchDiseaseAsync(queryString, cb) {
+      fetchDiseaseList({
         keyword: queryString,
         pageNum: 1,
         pageSize: 50,
       }).then((response) => {
         for (let i = 0; i < response.data.list.length; i++) {
           const element = response.data.list[i];
-          element.value = element.productsNameZh;
+          element.value = element.diseaseNameZh;
         }
         cb(response.data.list);
       });
@@ -228,8 +229,8 @@ export default {
     handleSelectJun(item) {
       this.sel_jun = item;
     },
-    handleSelectProduct(item) {
-      this.sel_product = JSON.parse(JSON.stringify(item));
+    handleSelectDisease(item) {
+      this.sel_disease = JSON.parse(JSON.stringify(item));
     },
     handleResetSearch() {
       this.listQuery = Object.assign({}, defaultListQuery);
@@ -247,20 +248,11 @@ export default {
     },
     getList() {
       this.listLoading = true;
-      // fetchStrainList(this.listQuery).then((response) => {
-      //   this.listLoading = false;
-      //   this.list = response.data.list;
-      //   this.total = response.data.total;
-      // });
-      fetchProductsRelationsList(this.listQuery).then((response) => {
+      fetchDiseaseRelationsList(this.listQuery).then((response) => {
         this.listLoading = false;
         this.list = response.data.list;
         this.total = response.data.total;
       });
-      // fetchSpeciesList().then((response) => {
-      //   this.listLoading = false;
-      //   this.superiorList = response.data.list;
-      // });
     },
     resetStrain() {},
     addStrain() {
@@ -283,9 +275,9 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       }).then(() => {
-        deleteProductsRelations({
+        deleteDiseaseRelations({
           strainId: row.strain_id,
-          productsId: row.products_id,
+          diseaseId: row.disease_id,
         }).then((response) => {
           this.$message({
             message: "删除成功",
@@ -300,8 +292,8 @@ export default {
     handleUpdate(index, row) {
       this.dialogVisible = true;
       this.dialogTitle = "编辑菌株";
-      this.sel_product.id = row.products_id;
-      this.sel_product.productsNameZh = row.products_name_zh;
+      this.sel_disease.id = row.products_id;
+      this.sel_disease.diseaseNameZh = row.disease_name_zh;
       this.sel_jun.id = row.strain_id;
       this.sel_jun.strainInternationalNo = row.strain_international_no;
       console.log(row.strain_international_no);
@@ -311,9 +303,9 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           if (this.dialogTitle === "添加关系") {
-            createProductsRelations({
+            createDiseaseRelations({
               strainId: this.sel_jun.id,
-              productsId: this.sel_product.id,
+              diseaseId: this.sel_disease.id,
             }).then((response) => {
               this.$message({
                 message: "添加成功",

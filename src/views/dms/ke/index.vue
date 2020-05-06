@@ -5,38 +5,50 @@
         <i class="el-icon-search"></i>
         <span>筛选搜索</span>
         <el-button
-          style="float:right"
+          style="float: right;"
           type="primary"
           @click="handleSearchList()"
-          size="small">
+          size="small"
+        >
           查询搜索
         </el-button>
         <el-button
-          style="float:right;margin-right: 15px"
+          style="float: right; margin-right: 15px;"
           @click="handleResetSearch()"
-          size="small">
+          size="small"
+        >
           重置
         </el-button>
       </div>
-      <div style="margin-top: 15px">
-        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
+      <div style="margin-top: 15px;">
+        <el-form
+          :inline="true"
+          :model="listQuery"
+          size="small"
+          label-width="140px"
+        >
           <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.keyword" class="input-width" placeholder="科/科名称" clearable></el-input>
+            <el-input
+              v-model="listQuery.keyword"
+              class="input-width"
+              placeholder="科/科名称"
+              clearable
+            ></el-input>
           </el-form-item>
         </el-form>
       </div>
     </el-card>
     <el-card class="operate-container" shadow="never">
-      <i class="el-icon-tickets" style="margin-top: 5px"></i>
-      <span style="margin-top: 5px">数据列表</span>
-      <el-button class="btn-add" @click="addKe()" size="mini">
+      <i class="el-icon-tickets" style="margin-top: 5px;"></i>
+      <span style="margin-top: 5px;">数据列表</span>
+      <el-button class="btn-add" @click="add()" size="mini">
         添加
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table
         ref="productAttrCateTable"
-        style="width: 100%"
+        style="width: 100%;"
         :data="list"
         v-loading="listLoading"
         border
@@ -51,12 +63,12 @@
         </el-table-column>
         <el-table-column label="科-名称" width="200" align="center">
           <template slot-scope="scope">
-            {{ scope.row.keName }}
+            {{ scope.row.bacteriaName }}
           </template>
         </el-table-column>
         <el-table-column label="科-中文名称" width="300" align="center">
           <template slot-scope="scope">
-            {{ scope.row.keNameZh }}
+            {{ scope.row.bacteriaNameZh }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
@@ -91,14 +103,30 @@
       </el-pagination>
     </div>
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="30%">
-      <el-form ref="ke" :model="ke" :rules="rules" label-width="120px">
+      <el-form
+        ref="ke"
+        :model="sel_bacteria"
+        :rules="rules"
+        label-width="120px"
+      >
         <el-form-item label="科-名称" prop="keName">
-          <el-input v-model="ke.keName" auto-complete="off"></el-input>
+          <el-input
+            v-model="sel_bacteria.bacteriaName"
+            auto-complete="off"
+          ></el-input>
         </el-form-item>
       </el-form>
-      <el-form ref="ke" :model="ke" :rules="rules" label-width="120px">
-        <el-form-item label="科-中文名称" prop="keNameZh">
-          <el-input v-model="ke.keNameZh" auto-complete="off"></el-input>
+      <el-form
+        ref="ke"
+        :model="sel_bacteria"
+        :rules="rules"
+        label-width="120px"
+      >
+        <el-form-item label="科-中文名称" prop="bacteriaNameZh">
+          <el-input
+            v-model="sel_bacteria.bacteriaNameZh"
+            auto-complete="off"
+          ></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -110,12 +138,18 @@
 </template>
 
 <script>
-import { fetchList, createKe, updateKe, deleteKe } from "@/api/dmsBacteria.js";
+import {
+  fetchList,
+  createBacteria,
+  updateBacteria,
+  deleteBacteria,
+} from "@/api/dmsBacteria.js";
 const defaultListQuery = {
-    keyword: null,
-    pageNum: 1,
-    pageSize: 5,
-  };
+  keyword: null,
+  pageNum: 1,
+  pageSize: 5,
+  bacteriaType: 1,
+};
 export default {
   name: "ke",
   data() {
@@ -125,34 +159,31 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 5
+        pageSize: 5,
+        bacteriaType: 1,
       },
       dialogVisible: false,
       dialogTitle: "",
-      ke: {
-        keName: "",
-        keNameZh: "",
-        muId: 1
-      },
+      sel_bacteria: {},
       rules: {
         name: [
           {
             required: true,
             message: "请输入名称",
-            trigger: "blur"
-          }
-        ]
-      }
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
   created() {
     this.getList();
   },
   methods: {
-    handleResetSearch(){
+    handleResetSearch() {
       this.listQuery = Object.assign({}, defaultListQuery);
     },
-    handleSearchList(){
+    handleSearchList() {
       this.getList();
     },
     indexFunc(index) {
@@ -160,21 +191,17 @@ export default {
     },
     getList() {
       this.listLoading = true;
-      fetchList(this.listQuery).then(response => {
+      fetchList(this.listQuery).then((response) => {
         this.listLoading = false;
         this.list = response.data.list;
         this.total = response.data.total;
       });
     },
-    resetKe() {
-      this.ke = {
-        keName: "",
-        keNameZh: "",
-        muId: 1
-      };
+    reset() {
+      this.sel_bacteria = {};
     },
-    addKe() {
-      this.resetKe();
+    add() {
+      this.reset();
       this.dialogVisible = true;
       this.dialogTitle = "添加科";
     },
@@ -191,15 +218,15 @@ export default {
       this.$confirm("是否要删除该科", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       }).then(() => {
-        deleteKe(row.id).then(response => {
+        deleteBacteria(row.id).then((response) => {
           this.$message({
             message: "删除成功",
             type: "success",
-            duration: 1000
+            duration: 1000,
           });
-          this.resetKe();
+          this.reset();
           this.getList();
         });
       });
@@ -207,56 +234,32 @@ export default {
     handleUpdate(index, row) {
       this.dialogVisible = true;
       this.dialogTitle = "编辑科";
-      this.ke.keName = row.keName;
-      this.ke.keNameZh = row.keNameZh;
-      this.ke.id = this.list[index].id;
+      this.sel_bacteria = row;
     },
-    getAttrList(index, row) {
-      this.$router.push({
-        path: "/pms/productAttrList",
-        query: {
-          cid: row.id,
-          cname: row.name,
-          type: 0
-        }
-      });
-    },
-    getParamList(index, row) {
-      this.$router.push({
-        path: "/pms/productAttrList",
-        query: {
-          cid: row.id,
-          cname: row.name,
-          type: 1
-        }
-      });
-    },
+
     handleConfirm(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
-          // let data = new URLSearchParams();
-          // data.append("name",this.productAttrCate.name);
-          debugger;
           if (this.dialogTitle === "添加科") {
-            this.ke.muId = 1;
-            createKe(this.ke).then(response => {
+            this.sel_bacteria.bacteriaType = this.listQuery.bacteriaType;
+            createBacteria(this.sel_bacteria).then((response) => {
               this.$message({
                 message: "添加成功",
                 type: "success",
-                duration: 1000
+                duration: 1000,
               });
-              this.resetKe();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });
           } else {
-            updateKe(this.ke).then(response => {
+            updateKe(this.sel_bacteria).then((response) => {
               this.$message({
                 message: "修改成功",
                 type: "success",
-                duration: 1000
+                duration: 1000,
               });
-              this.resetKe();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });
@@ -266,8 +269,8 @@ export default {
           return false;
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

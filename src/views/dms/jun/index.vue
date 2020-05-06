@@ -5,38 +5,50 @@
         <i class="el-icon-search"></i>
         <span>筛选搜索</span>
         <el-button
-          style="float:right"
+          style="float: right;"
           type="primary"
           @click="handleSearchList()"
-          size="small">
+          size="small"
+        >
           查询搜索
         </el-button>
         <el-button
-          style="float:right;margin-right: 15px"
+          style="float: right; margin-right: 15px;"
           @click="handleResetSearch()"
-          size="small">
+          size="small"
+        >
           重置
         </el-button>
       </div>
-      <div style="margin-top: 15px">
-        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
+      <div style="margin-top: 15px;">
+        <el-form
+          :inline="true"
+          :model="listQuery"
+          size="small"
+          label-width="140px"
+        >
           <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.keyword" class="input-width" placeholder="科/科名称" clearable></el-input>
+            <el-input
+              v-model="listQuery.keyword"
+              class="input-width"
+              placeholder="菌株/菌株名称"
+              clearable
+            ></el-input>
           </el-form-item>
         </el-form>
       </div>
     </el-card>
     <el-card class="operate-container" shadow="never">
-      <i class="el-icon-tickets" style="margin-top: 5px"></i>
-      <span style="margin-top: 5px">数据列表</span>
-      <el-button class="btn-add" @click="addStrain()" size="mini">
+      <i class="el-icon-tickets" style="margin-top: 5px;"></i>
+      <span style="margin-top: 5px;">数据列表</span>
+      <el-button class="btn-add" @click="add()" size="mini">
         添加
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table
         ref="productAttrCateTable"
-        style="width: 100%"
+        style="width: 100%;"
         :data="list"
         v-loading="listLoading"
         border
@@ -51,12 +63,12 @@
         </el-table-column>
         <el-table-column label="种-名称" width="200" align="center">
           <template slot-scope="scope">
-            {{ scope.row.strainInternationalNo }}
+            {{ scope.row.bacteriaName }}
           </template>
         </el-table-column>
         <el-table-column label="种-中文名称" width="300" align="center">
           <template slot-scope="scope">
-            {{ scope.row.strainInsideNo }}
+            {{ scope.row.bacteriaNameZh }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
@@ -91,24 +103,44 @@
       </el-pagination>
     </div>
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="30%">
-      <el-form ref="strain" :model="strain" :rules="rules" label-width="120px">
-        <el-form-item label="菌株-名称" prop="strainInternationalNo">
-          <el-input v-model="strain.strainInternationalNo" auto-complete="off"></el-input>
+      <el-form
+        ref="shu"
+        :model="sel_bacteria"
+        :rules="rules"
+        label-width="120px"
+      >
+        <el-form-item label="菌株-名称" prop="bacteriaName">
+          <el-input
+            v-model="sel_bacteria.bacteriaName"
+            auto-complete="off"
+          ></el-input>
         </el-form-item>
 
-        <el-form-item label="菌株-中文名称" prop="strainInsideNo">
-          <el-input v-model="strain.strainInsideNo" auto-complete="off"></el-input>
+        <el-form-item label="菌株-中文名称" prop="bacteriaNameZh">
+          <el-input
+            v-model="sel_bacteria.bacteriaNameZh"
+            auto-complete="off"
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="上级-种">
-          <el-select :value="superior.speciesNameZh" placeholder="请选所属-种" @change="selectedSuperior">
-            <el-option v-for="(item, index) in superiorList" :key="index" :label="item.speciesNameZh" :value="item"></el-option>
+          <el-select
+            :value="superior.bacteriaNameZh"
+            placeholder="请选所属-种"
+            @change="selectedSuperior"
+          >
+            <el-option
+              v-for="(item, index) in superiorList"
+              :key="index"
+              :label="item.bacteriaNameZh"
+              :value="item"
+            ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleConfirm('strain')"
+        <el-button type="primary" @click="handleConfirm('shu')"
           >确 定</el-button
         >
       </span>
@@ -118,19 +150,19 @@
 
 <script>
 import {
-  fetchStrainList,
-  fetchSpeciesList,
-  createStrain,
-  updateStrain,
-  deleteStrain
+  fetchList,
+  createBacteria,
+  updateBacteria,
+  deleteBacteria,
 } from "@/api/dmsBacteria.js";
 const defaultListQuery = {
-    keyword: null,
-    pageNum: 1,
-    pageSize: 5,
-  };
+  keyword: null,
+  pageNum: 1,
+  pageSize: 5,
+  bacteriaType: 4,
+};
 export default {
-  name: "strain",
+  name: "shu",
   data() {
     return {
       list: null,
@@ -138,78 +170,63 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 5
+        pageSize: 5,
+        bacteriaType: 4,
       },
       dialogVisible: false,
       dialogTitle: "",
-      strain: {
-        id:'',
-        strainInternationalNo: "",
-        strainInsideNo: "",
-        speciesId: 0
-      },
-      superiorList:null,
-      superior:{
-        speciesName: "",
-        speciesNameZh: "",
-        id: 0
-      },
+      sel_bacteria: {},
+      superiorList: null,
+      superior: {},
       rules: {
         name: [
           {
             required: true,
             message: "请输入名称",
-            trigger: "blur"
-          }
-        ]
-      }
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
   created() {
     this.getList();
   },
   methods: {
-    handleResetSearch(){
+    handleResetSearch() {
       this.listQuery = Object.assign({}, defaultListQuery);
     },
-    handleSearchList(){
+    handleSearchList() {
       this.getList();
     },
-    selectedSuperior(e){
-      this.superior.id = e.id;
-      this.superior.speciesName = e.speciesName;
-      this.superior.speciesNameZh = e.speciesNameZh;
+    selectedSuperior(e) {
+      this.superior = e;
+      this.sel_bacteria.parentId = this.superior.id;
     },
     indexFunc(index) {
       return index + 1;
     },
     getList() {
       this.listLoading = true;
-      fetchStrainList(this.listQuery).then(response => {
+      fetchList(this.listQuery).then((response) => {
         this.listLoading = false;
         this.list = response.data.list;
         this.total = response.data.total;
       });
-      fetchSpeciesList().then(response => {
+
+      fetchList({
+        bacteriaType: 3,
+      }).then((response) => {
         this.listLoading = false;
         this.superiorList = response.data.list;
       });
     },
-    resetStrain() {
-      this.strain = {
-        id:'',
-        strainInternationalNo: "",
-        strainInsideNo: "",
-        speciesId: 0
-      };
-      this.superior = {
-        speciesName: "",
-        speciesNameZh: "",
-        id: 0
-      }
+    reset() {
+      this.sel_bacteria = {};
+      this.superior = {};
     },
-    addStrain() {
-      this.resetStrain();
+    add() {
+      this.reset();
       this.dialogVisible = true;
       this.dialogTitle = "添加菌株";
     },
@@ -226,15 +243,15 @@ export default {
       this.$confirm("是否要删除该菌株", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       }).then(() => {
-        deleteStrain(row.id).then(response => {
+        deleteBacteria(row.id).then((response) => {
           this.$message({
             message: "删除成功",
             type: "success",
-            duration: 1000
+            duration: 1000,
           });
-          this.resetStrain();
+          this.reset();
           this.getList();
         });
       });
@@ -242,39 +259,44 @@ export default {
     handleUpdate(index, row) {
       this.dialogVisible = true;
       this.dialogTitle = "编辑菌株";
-      this.strain.strainInternationalNo = row.strainInternationalNo;
-      this.strain.strainInsideNo = row.strainInsideNo;
-      this.strain.id = this.list[index].id;
-      this.strain.speciesId = this.list[index].speciesId;
-      this.superiorList.forEach(element => {
-        if (element.id === this.strain.speciesId) {
+      this.sel_bacteria = row;
+      this.superiorList.forEach((element) => {
+        if (element.id === this.sel_bacteria.parentId) {
           this.superior = element;
         }
       });
     },
     handleConfirm(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
           if (this.dialogTitle === "添加菌株") {
-            this.strain.speciesId = this.superior.id;
-            createStrain(this.strain).then(response => {
-              this.$message({
-                message: "添加成功",
-                type: "success",
-                duration: 1000
+            if (this.sel_bacteria.parentId) {
+              this.sel_bacteria.bacteriaType = this.listQuery.bacteriaType;
+              createBacteria(this.sel_bacteria).then((response) => {
+                this.$message({
+                  message: "添加成功",
+                  type: "success",
+                  duration: 1000,
+                });
+                this.reset();
+                this.dialogVisible = false;
+                this.getList();
               });
-              this.resetStrain();
-              this.dialogVisible = false;
-              this.getList();
-            });
+            } else {
+              this.$message({
+                message: "请选择所属-种",
+                type: "warning",
+                duration: 1000,
+              });
+            }
           } else {
-            updateStrain(this.strain).then(response => {
+            updateBacteria(this.sel_bacteria).then((response) => {
               this.$message({
                 message: "修改成功",
                 type: "success",
-                duration: 1000
+                duration: 1000,
               });
-              this.resetStrain();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });
@@ -284,8 +306,8 @@ export default {
           return false;
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

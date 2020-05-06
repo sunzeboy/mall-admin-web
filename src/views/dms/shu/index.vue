@@ -5,38 +5,50 @@
         <i class="el-icon-search"></i>
         <span>筛选搜索</span>
         <el-button
-          style="float:right"
+          style="float: right;"
           type="primary"
           @click="handleSearchList()"
-          size="small">
+          size="small"
+        >
           查询搜索
         </el-button>
         <el-button
-          style="float:right;margin-right: 15px"
+          style="float: right; margin-right: 15px;"
           @click="handleResetSearch()"
-          size="small">
+          size="small"
+        >
           重置
         </el-button>
       </div>
-      <div style="margin-top: 15px">
-        <el-form :inline="true" :model="listQuery" size="small" label-width="140px">
+      <div style="margin-top: 15px;">
+        <el-form
+          :inline="true"
+          :model="listQuery"
+          size="small"
+          label-width="140px"
+        >
           <el-form-item label="输入搜索：">
-            <el-input v-model="listQuery.keyword" class="input-width" placeholder="科/科名称" clearable></el-input>
+            <el-input
+              v-model="listQuery.keyword"
+              class="input-width"
+              placeholder="属/属名称"
+              clearable
+            ></el-input>
           </el-form-item>
         </el-form>
       </div>
     </el-card>
     <el-card class="operate-container" shadow="never">
-      <i class="el-icon-tickets" style="margin-top: 5px"></i>
-      <span style="margin-top: 5px">数据列表</span>
-      <el-button class="btn-add" @click="addShu()" size="mini">
+      <i class="el-icon-tickets" style="margin-top: 5px;"></i>
+      <span style="margin-top: 5px;">数据列表</span>
+      <el-button class="btn-add" @click="add()" size="mini">
         添加
       </el-button>
     </el-card>
     <div class="table-container">
       <el-table
         ref="productAttrCateTable"
-        style="width: 100%"
+        style="width: 100%;"
         :data="list"
         v-loading="listLoading"
         border
@@ -51,12 +63,12 @@
         </el-table-column>
         <el-table-column label="属-名称" width="200" align="center">
           <template slot-scope="scope">
-            {{ scope.row.genusName }}
+            {{ scope.row.bacteriaName }}
           </template>
         </el-table-column>
         <el-table-column label="属-中文名称" width="300" align="center">
           <template slot-scope="scope">
-            {{ scope.row.genusNameZh }}
+            {{ scope.row.bacteriaNameZh }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
@@ -91,18 +103,38 @@
       </el-pagination>
     </div>
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="30%">
-      <el-form ref="shu" :model="shu" :rules="rules" label-width="120px">
-        <el-form-item label="属-名称" prop="genusName">
-          <el-input v-model="shu.genusName" auto-complete="off"></el-input>
+      <el-form
+        ref="shu"
+        :model="sel_bacteria"
+        :rules="rules"
+        label-width="120px"
+      >
+        <el-form-item label="属-名称" prop="bacteriaName">
+          <el-input
+            v-model="sel_bacteria.bacteriaName"
+            auto-complete="off"
+          ></el-input>
         </el-form-item>
 
-        <el-form-item label="属-中文名称" prop="genusNameZh">
-          <el-input v-model="shu.genusNameZh" auto-complete="off"></el-input>
+        <el-form-item label="属-中文名称" prop="bacteriaNameZh">
+          <el-input
+            v-model="sel_bacteria.bacteriaNameZh"
+            auto-complete="off"
+          ></el-input>
         </el-form-item>
 
         <el-form-item label="上级-科">
-          <el-select :value="superior.keNameZh" placeholder="请选所属-科" @change="selectedSuperior">
-            <el-option v-for="(item, index) in superiorList" :key="index" :label="item.keNameZh" :value="item"></el-option>
+          <el-select
+            :value="superior.bacteriaNameZh"
+            placeholder="请选所属-科"
+            @change="selectedSuperior"
+          >
+            <el-option
+              v-for="(item, index) in superiorList"
+              :key="index"
+              :label="item.bacteriaNameZh"
+              :value="item"
+            ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -118,17 +150,17 @@
 
 <script>
 import {
-  fetchShuList,
   fetchList,
-  createShu,
-  updateShu,
-  deleteShu
+  createBacteria,
+  updateBacteria,
+  deleteBacteria,
 } from "@/api/dmsBacteria.js";
 const defaultListQuery = {
-    keyword: null,
-    pageNum: 1,
-    pageSize: 5,
-  };
+  keyword: null,
+  pageNum: 1,
+  pageSize: 5,
+  bacteriaType: 2,
+};
 export default {
   name: "shu",
   data() {
@@ -138,78 +170,63 @@ export default {
       listLoading: true,
       listQuery: {
         pageNum: 1,
-        pageSize: 5
+        pageSize: 5,
+        bacteriaType: 2,
       },
       dialogVisible: false,
       dialogTitle: "",
-      shu: {
-        id:'',
-        genusName: "",
-        genusNameZh: "",
-        keId: 0
-      },
-      superiorList:null,
-      superior:{
-        keName: "",
-        keNameZh: "",
-        keId: 1
-      },
+      sel_bacteria: {},
+      superiorList: null,
+      superior: {},
       rules: {
         name: [
           {
             required: true,
             message: "请输入名称",
-            trigger: "blur"
-          }
-        ]
-      }
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
   created() {
     this.getList();
   },
   methods: {
-    handleResetSearch(){
+    handleResetSearch() {
       this.listQuery = Object.assign({}, defaultListQuery);
     },
-    handleSearchList(){
+    handleSearchList() {
       this.getList();
     },
-    selectedSuperior(e){
-      this.superior.id = e.id;
-      this.superior.keName = e.keName;
-      this.superior.keNameZh = e.keNameZh;
+    selectedSuperior(e) {
+      this.superior = e;
+      this.sel_bacteria.parentId = this.superior.id;
     },
     indexFunc(index) {
       return index + 1;
     },
     getList() {
       this.listLoading = true;
-      fetchShuList(this.listQuery).then(response => {
+      fetchList(this.listQuery).then((response) => {
         this.listLoading = false;
         this.list = response.data.list;
         this.total = response.data.total;
       });
-      fetchList().then(response => {
+
+      fetchList({
+        bacteriaType: 1,
+      }).then((response) => {
         this.listLoading = false;
         this.superiorList = response.data.list;
       });
     },
-    resetShu() {
-      this.shu = {
-        id:0,
-        genusName: "",
-        genusNameZh: "",
-        keId: 0
-      };
-      this.superior = {
-        keName: "",
-        keNameZh: "",
-        keId: 1
-      }
+    reset() {
+      this.sel_bacteria = {};
+      this.superior = {};
     },
-    addShu() {
-      this.resetShu();
+    add() {
+      this.reset();
       this.dialogVisible = true;
       this.dialogTitle = "添加属";
     },
@@ -226,15 +243,15 @@ export default {
       this.$confirm("是否要删除该属", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       }).then(() => {
-        deleteShu(row.id).then(response => {
+        deleteBacteria(row.id).then((response) => {
           this.$message({
             message: "删除成功",
             type: "success",
-            duration: 1000
+            duration: 1000,
           });
-          this.resetShu();
+          this.reset();
           this.getList();
         });
       });
@@ -242,63 +259,44 @@ export default {
     handleUpdate(index, row) {
       this.dialogVisible = true;
       this.dialogTitle = "编辑属";
-      this.shu.genusName = row.genusName;
-      this.shu.genusNameZh = row.genusNameZh;
-      this.shu.id = this.list[index].id;
-      this.shu.keId = this.list[index].keId;
-      this.superiorList.forEach(element => {
-        if (element.id === this.shu.keId) {
+      this.sel_bacteria = row;
+      this.superiorList.forEach((element) => {
+        if (element.id === this.sel_bacteria.parentId) {
           this.superior = element;
         }
       });
     },
-    getAttrList(index, row) {
-      this.$router.push({
-        path: "/pms/productAttrList",
-        query: {
-          cid: row.id,
-          cname: row.name,
-          type: 0
-        }
-      });
-    },
-    getParamList(index, row) {
-      this.$router.push({
-        path: "/pms/productAttrList",
-        query: {
-          cid: row.id,
-          cname: row.name,
-          type: 1
-        }
-      });
-    },
     handleConfirm(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate((valid) => {
         if (valid) {
-          // let data = new URLSearchParams();
-          // data.append("name",this.productAttrCate.name);
           if (this.dialogTitle === "添加属") {
-            console.log(this.superior.id);
-            this.shu.keId = this.superior.id;
-            console.log(this.shu);
-            createShu(this.shu).then(response => {
-              this.$message({
-                message: "添加成功",
-                type: "success",
-                duration: 1000
+            if (this.sel_bacteria.parentId) {
+              this.sel_bacteria.bacteriaType = this.listQuery.bacteriaType;
+              createBacteria(this.sel_bacteria).then((response) => {
+                this.$message({
+                  message: "添加成功",
+                  type: "success",
+                  duration: 1000,
+                });
+                this.reset();
+                this.dialogVisible = false;
+                this.getList();
               });
-              this.resetShu();
-              this.dialogVisible = false;
-              this.getList();
-            });
+            } else {
+              this.$message({
+                message: "请选择所属-科",
+                type: "warning",
+                duration: 1000,
+              });
+            }
           } else {
-            updateShu(this.shu).then(response => {
+            updateBacteria(this.sel_bacteria).then((response) => {
               this.$message({
                 message: "修改成功",
                 type: "success",
-                duration: 1000
+                duration: 1000,
               });
-              this.resetshu();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });
@@ -308,8 +306,8 @@ export default {
           return false;
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -1,12 +1,12 @@
 import request from '@/utils/request'
 
-export function fetchList(params) {
-  return request({
-    url:'/bacteria/ke/listAll',
-    method:'get',
-    params:params
-  })
-}
+// export function fetchList(params) {
+//   return request({
+//     url:'/bacteria/ke/listAll',
+//     method:'get',
+//     params:params
+//   })
+// }
 export function createKe(data) {
   return request({
     url:'/bacteria/ke/create',
@@ -215,6 +215,72 @@ export function deleteDisease(data) {
 export function updateDisease(data) {
   return request({
     url:'/disease/update',
+    method:'post',
+    data:data
+  })
+}
+
+export function createDiseaseRelations(params) {
+  return request({
+    url:'/disease/relations/create',
+    method:'post',
+    data:params
+  })
+}
+
+export function fetchDiseaseRelationsList(params) {
+  return request({
+    url:'/disease/relations/findAll',
+    method:'get',
+    params:params
+  })
+}
+
+export function updateDiseaseRelations(params) {
+  return request({
+    url:'/disease/relations/update',
+    method:'get',
+    params:params
+  })
+}
+export function deleteDiseaseRelations(params) {
+  return request({
+    url:'/disease/relations/delete',
+    method:'post',
+    data:params
+  })
+}
+
+
+
+//---------------------------------
+
+export function fetchList(params) {
+  return request({
+    url:'/bacteria/listAll',
+    method:'get',
+    params:params
+  })
+}
+export function createBacteria(data) {
+  return request({
+    url:'/bacteria/create',
+    method:'post',
+    data:data
+  })
+}
+
+export function deleteBacteria(data) {
+  return request({
+    url:'/bacteria/delete/'+data,
+    method:'post',
+    data:data
+  })
+}
+
+export function updateBacteria(data) {
+  return request({
+    url:'/bacteria/update',
     method:'post',
     data:data
   })
