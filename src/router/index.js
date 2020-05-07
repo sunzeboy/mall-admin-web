@@ -418,6 +418,12 @@ export const asyncRouterMap = [
         name: 'complication',
         component: () => import('@/views/dms/complication/index'),
         meta: {title: '并发症'},
+      },
+      {
+        path: 'complicationJun',
+        name: 'complicationJun',
+        component: () => import('@/views/dms/complicationJun/index'),
+        meta: {title: '菌群与并发症'},
       }
     ]
   },

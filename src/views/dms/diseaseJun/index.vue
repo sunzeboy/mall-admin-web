@@ -41,7 +41,7 @@
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets" style="margin-top: 5px;"></i>
       <span style="margin-top: 5px;">数据列表</span>
-      <el-button class="btn-add" @click="addStrain()" size="mini">
+      <el-button class="btn-add" @click="add()" size="mini">
         添加
       </el-button>
     </el-card>
@@ -63,12 +63,12 @@
         </el-table-column>
         <el-table-column label="菌群对象" width="200" align="center">
           <template slot-scope="scope">
-            {{ scope.row.strain_international_no }}
+            {{ scope.row.bacteriaNameZh }}
           </template>
         </el-table-column>
         <el-table-column label="疾病" width="300" align="center">
           <template slot-scope="scope">
-            {{ scope.row.disease_name_zh }}
+            {{ scope.row.diseaseNameZh }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" align="center">
@@ -111,7 +111,7 @@
       >
         <el-form-item label="菌群">
           <el-autocomplete
-            v-model="sel_jun.strainInternationalNo"
+            v-model="sel_jun.bacteriaNameZh"
             :fetch-suggestions="querySearchJunAsync"
             placeholder="菌群"
             @select="handleSelectJun"
@@ -138,16 +138,12 @@
 
 <script>
 import {
+  fetchList,
   fetchDiseaseList,
   createDiseaseRelations,
   fetchDiseaseRelationsList,
   updateDiseaseRelations,
   deleteDiseaseRelations,
-  fetchSpeciesList,
-  fetchStrainList,
-  createStrain,
-  updateStrain,
-  deleteStrain,
 } from "@/api/dmsBacteria.js";
 const defaultListQuery = {
   keyword: null,
@@ -168,11 +164,7 @@ export default {
       dialogVisible: false,
       dialogTitle: "",
       superiorList: null,
-      superior: {
-        speciesName: "",
-        speciesNameZh: "",
-        id: 0,
-      },
+      superior: {},
       rules: {
         name: [
           {
@@ -182,18 +174,8 @@ export default {
           },
         ],
       },
-      sel_jun: {
-        id: "",
-        strainInternationalNo: "",
-        strainInsideNo: "",
-        speciesId: 0,
-      },
-      sel_disease: {
-        id: "",
-        diseaseName: "",
-        diseaseType: "",
-        diseaseNameZh: "",
-      },
+      sel_jun: {},
+      sel_disease: {},
     };
   },
   created() {
@@ -201,14 +183,14 @@ export default {
   },
   methods: {
     querySearchJunAsync(queryString, cb) {
-      fetchStrainList({
+      fetchList({
         keyword: queryString,
         pageNum: 1,
         pageSize: 50,
       }).then((response) => {
         for (let i = 0; i < response.data.list.length; i++) {
           const element = response.data.list[i];
-          element.value = element.strainInsideNo;
+          element.value = element.bacteriaNameZh;
         }
         cb(response.data.list);
       });
@@ -254,9 +236,9 @@ export default {
         this.total = response.data.total;
       });
     },
-    resetStrain() {},
-    addStrain() {
-      this.resetStrain();
+    reset() {},
+    add() {
+      this.reset();
       this.dialogVisible = true;
       this.dialogTitle = "添加关系";
     },
@@ -276,15 +258,15 @@ export default {
         type: "warning",
       }).then(() => {
         deleteDiseaseRelations({
-          strainId: row.strain_id,
-          diseaseId: row.disease_id,
+          bacteriaId: row.bacteriaId,
+          diseaseId: row.diseaseId,
         }).then((response) => {
           this.$message({
             message: "删除成功",
             type: "success",
             duration: 1000,
           });
-          this.resetStrain();
+          this.reset();
           this.getList();
         });
       });
@@ -292,19 +274,17 @@ export default {
     handleUpdate(index, row) {
       this.dialogVisible = true;
       this.dialogTitle = "编辑菌株";
-      this.sel_disease.id = row.products_id;
-      this.sel_disease.diseaseNameZh = row.disease_name_zh;
-      this.sel_jun.id = row.strain_id;
-      this.sel_jun.strainInternationalNo = row.strain_international_no;
-      console.log(row.strain_international_no);
-      
+      this.sel_disease.id = row.productsId;
+      this.sel_disease.diseaseNameZh = row.diseaseNameZh;
+      this.sel_jun.id = row.bacteriaId;
+      this.sel_jun.bacteriaNameZh = row.bacteriaNameZh;
     },
     handleConfirm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           if (this.dialogTitle === "添加关系") {
             createDiseaseRelations({
-              strainId: this.sel_jun.id,
+              bacteriaId: this.sel_jun.id,
               diseaseId: this.sel_disease.id,
             }).then((response) => {
               this.$message({
@@ -312,7 +292,7 @@ export default {
                 type: "success",
                 duration: 1000,
               });
-              this.resetStrain();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });
@@ -327,7 +307,7 @@ export default {
                 type: "success",
                 duration: 1000,
               });
-              this.resetStrain();
+              this.reset();
               this.dialogVisible = false;
               this.getList();
             });

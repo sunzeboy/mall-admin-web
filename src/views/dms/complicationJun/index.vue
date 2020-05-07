@@ -31,7 +31,7 @@
             <el-input
               v-model="listQuery.keyword"
               class="input-width"
-              placeholder="病发症名称/病发症中文名"
+              placeholder="菌群对象/病发症"
               clearable
             ></el-input>
           </el-form-item>
@@ -61,18 +61,12 @@
           align="center"
         >
         </el-table-column>
-        <el-table-column label="病发症类型" width="200" align="center">
+        <el-table-column label="菌群对象" width="200" align="center">
           <template slot-scope="scope">
-            {{ scope.row.complicationDesc }}
+            {{ scope.row.bacteriaNameZh }}
           </template>
         </el-table-column>
-        </el-table-column>
-        <el-table-column label="病发症-名称" width="200" align="center">
-          <template slot-scope="scope">
-            {{ scope.row.complicationName }}
-          </template>
-        </el-table-column>
-        <el-table-column label="病发症-中文名称" width="300" align="center">
+        <el-table-column label="病发症" width="300" align="center">
           <template slot-scope="scope">
             {{ scope.row.complicationNameZh }}
           </template>
@@ -110,43 +104,31 @@
     </div>
     <el-dialog :title="dialogTitle" :visible.sync="dialogVisible" width="30%">
       <el-form
-        ref="shu"
-        :model="sel_complication"
+        ref="productsRelations"
+        :model="sel_jun"
         :rules="rules"
         label-width="120px"
       >
-        <el-form-item label="病发症-名称" prop="complicationName">
-          <el-input
-            v-model="sel_complication.complicationName"
-            auto-complete="off"
-          ></el-input>
+        <el-form-item label="菌群">
+          <el-autocomplete
+            v-model="sel_jun.bacteriaNameZh"
+            :fetch-suggestions="querySearchJunAsync"
+            placeholder="菌群"
+            @select="handleSelectJun"
+          ></el-autocomplete>
         </el-form-item>
-
-        <el-form-item label="病发症-中文名称" prop="complicationNameZh">
-          <el-input
+        <el-form-item label="病发症-中文名称">
+          <el-autocomplete
             v-model="sel_complication.complicationNameZh"
-            auto-complete="off"
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="病发症-类型">
-          <el-select
-            :value="complicationTypeName"
-            placeholder="请选择病发症类型"
-            @change="selectedSuperior"
-          >
-            <el-option
-              v-for="(item, index) in complicationTypeList"
-              :key="index"
-              :label="item.complicationDesc"
-              :value="item"
-            ></el-option>
-          </el-select>
+            :fetch-suggestions="querySearchProductAsync"
+            placeholder="病发症-中文名称"
+            @select="handleSelectProduct"
+          ></el-autocomplete>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleConfirm('shu')"
+        <el-button type="primary" @click="handleConfirm('productsRelations')"
           >确 定</el-button
         >
       </span>
@@ -156,11 +138,12 @@
 
 <script>
 import {
-  createComplication,
+  fetchList,
   listAllComplication,
-  updateComplication,
-  deleteComplication,
-  listAllComplicationType,
+  createBacteriaRelationsComplication,
+  listAllBacteriaRelationsComplications,
+  updateBacteriaRelationsComplication,
+  deleteBacteriaRelationsComplication,
 } from "@/api/dmsBacteria.js";
 const defaultListQuery = {
   keyword: null,
@@ -168,7 +151,7 @@ const defaultListQuery = {
   pageSize: 5,
 };
 export default {
-  name: "shu",
+  name: "productsRelations",
   data() {
     return {
       list: null,
@@ -180,9 +163,8 @@ export default {
       },
       dialogVisible: false,
       dialogTitle: "",
-      sel_complication: {},
-      complicationTypeList: null,
-      complicationTypeName:'',
+      superiorList: null,
+      superior: {},
       rules: {
         name: [
           {
@@ -192,14 +174,46 @@ export default {
           },
         ],
       },
+      sel_jun: {},
+      sel_complication: {},
     };
   },
   created() {
-    console.log('aaaa');
-    
     this.getList();
   },
   methods: {
+    querySearchJunAsync(queryString, cb) {
+      fetchList({
+        keyword: queryString,
+        pageNum: 1,
+        pageSize: 50,
+      }).then((response) => {
+        for (let i = 0; i < response.data.list.length; i++) {
+          const element = response.data.list[i];
+          element.value = element.bacteriaNameZh;
+        }
+        cb(response.data.list);
+      });
+    },
+    querySearchProductAsync(queryString, cb) {
+      listAllComplication({
+        keyword: queryString,
+        pageNum: 1,
+        pageSize: 50,
+      }).then((response) => {
+        for (let i = 0; i < response.data.list.length; i++) {
+          const element = response.data.list[i];
+          element.value = element.complicationNameZh;
+        }
+        cb(response.data.list);
+      });
+    },
+    handleSelectJun(item) {
+      this.sel_jun = item;
+    },
+    handleSelectProduct(item) {
+      this.sel_complication = JSON.parse(JSON.stringify(item));
+    },
     handleResetSearch() {
       this.listQuery = Object.assign({}, defaultListQuery);
     },
@@ -207,34 +221,31 @@ export default {
       this.getList();
     },
     selectedSuperior(e) {
-      console.log(e.complicationTypeName);
-      this.complicationTypeName = e.complicationDesc;
-      this.sel_complication.complicationType = e.complicationType;
+      this.superior.id = e.id;
+      this.superior.speciesName = e.speciesName;
+      this.superior.speciesNameZh = e.speciesNameZh;
     },
     indexFunc(index) {
       return index + 1;
     },
     getList() {
       this.listLoading = true;
-      listAllComplication(this.listQuery).then((response) => {
+
+      listAllBacteriaRelationsComplications(this.listQuery).then((response) => {
         this.listLoading = false;
         this.list = response.data.list;
         this.total = response.data.total;
       });
 
-      listAllComplicationType().then((response) => {
-        this.listLoading = false;
-        this.complicationTypeList = response.data.list;
-      });
     },
     reset() {
+      this.sel_jun = {};
       this.sel_complication = {};
-      this.complicationTypeName = {};
     },
     add() {
       this.reset();
       this.dialogVisible = true;
-      this.dialogTitle = "添加属";
+      this.dialogTitle = "添加关系";
     },
     handleSizeChange(val) {
       this.listQuery.pageNum = 1;
@@ -246,12 +257,15 @@ export default {
       this.getList();
     },
     handleDelete(index, row) {
-      this.$confirm("是否要删除该属", "提示", {
+      this.$confirm("是否要删除该关系", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       }).then(() => {
-        deleteBacteria(row.id).then((response) => {
+        deleteProductsRelations({
+          strainId: row.strain_id,
+          productsId: row.products_id,
+        }).then((response) => {
           this.$message({
             message: "删除成功",
             type: "success",
@@ -264,38 +278,38 @@ export default {
     },
     handleUpdate(index, row) {
       this.dialogVisible = true;
-      this.dialogTitle = "编辑属";
-      this.sel_complication = row;
-      this.complicationTypeList.forEach((element) => {
-        if (element.complicationType === this.sel_complication.complicationType) {
-          this.complicationTypeName = element.complicationDesc;
-        }
-      });
+      this.dialogTitle = "编辑菌株";
+      this.sel_complication.id = row.complicationId;
+      this.sel_complication.complicationNameZh = row.complicationNameZh;
+      this.sel_jun.id = row.bacteriaId;
+      this.sel_jun.bacteriaNameZh = row.bacteriaNameZh;
     },
     handleConfirm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (this.dialogTitle === "添加属") {
-            if (this.sel_complication.complicationType) {
-              createComplication(this.sel_complication).then((response) => {
-                this.$message({
-                  message: "添加成功",
-                  type: "success",
-                  duration: 1000,
-                });
-                this.reset();
-                this.dialogVisible = false;
-                this.getList();
-              });
-            } else {
+          if (this.dialogTitle === "添加关系") {
+            console.log(this.sel_jun);
+            console.log(this.sel_complication);
+
+            createBacteriaRelationsComplication({
+              bacteriaId: this.sel_jun.id,
+              complicationId: this.sel_complication.id,
+            }).then((response) => {
               this.$message({
-                message: "请选择所属-科",
-                type: "warning",
+                message: "添加成功",
+                type: "success",
                 duration: 1000,
               });
-            }
+              this.reset();
+              this.dialogVisible = false;
+              this.getList();
+            });
           } else {
-            updateComplication(this.sel_complication).then((response) => {
+            updateBacteriaRelationsComplication({
+              message: "添加成功",
+              type: "success",
+              duration: 1000,
+            }).then((response) => {
               this.$message({
                 message: "修改成功",
                 type: "success",

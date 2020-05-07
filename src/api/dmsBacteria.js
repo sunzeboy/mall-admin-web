@@ -285,3 +285,76 @@ export function updateBacteria(data) {
     data:data
   })
 }
+
+
+export function createComplication(params) {
+  return request({
+    url:'/disease/complication/create',
+    method:'post',
+    data:params
+  })
+}
+
+export function listAllComplication(params) {
+  return request({
+    url:'/disease/complication/listAll',
+    method:'get',
+    params:params
+  })
+}
+
+export function updateComplication(params) {
+  return request({
+    url:'/disease/complication/update',
+    method:'post',
+    data:params
+  })
+}
+
+export function deleteComplication(params) {
+  return request({
+    url:'/disease/complication/delete/'+params,
+    method:'post',
+    data:params
+  })
+}
+
+export function listAllComplicationType(params) {
+  return request({
+    url:'/disease/complication/type/listall',
+    method:'get',
+    params:params
+  })
+}
+
+
+export function createBacteriaRelationsComplication(params) {
+  return request({
+    url:'/bacteria/relations/complication/create',
+    method:'post',
+    data:params
+  })
+}
+
+export function listAllBacteriaRelationsComplications(params) {
+  return request({
+    url:'/bacteria/relations/complication/listAll',
+    method:'get',
+    params:params
+  })
+}
+
+export function updateBacteriaRelationsComplication(params) {
+  return request({
+    url:'/bacteria/relations/complication/update',
+    method:'get',
+    params:params
+  })
+}
+export function deleteBacteriaRelationsComplication(params) {
+  return request({
+    url:'/bacteria/relations/complication/delete',
+    method:'post',
+    data:params
+  })
+}
