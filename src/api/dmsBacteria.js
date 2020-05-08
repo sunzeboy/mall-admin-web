@@ -358,3 +358,35 @@ export function deleteBacteriaRelationsComplication(params) {
     data:params
   })
 }
+
+
+export function createExperimentalResource(params) {
+  return request({
+    url:'/experimental/resource/create',
+    method:'post',
+    data:params
+  })
+}
+
+export function listAllExperimentalResources(params) {
+  return request({
+    url:'/experimental/resource/listAll',
+    method:'get',
+    params:params
+  })
+}
+
+export function updateExperimentalResource(params) {
+  return request({
+    url:'/experimental/resource/update',
+    method:'get',
+    params:params
+  })
+}
+export function deleteExperimentalResource(params) {
+  return request({
+    url:'/experimental/resource/delete',
+    method:'post',
+    data:params
+  })
+}

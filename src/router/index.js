@@ -21,17 +21,17 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   {path: '/login', component: () => import('@/views/login/index'), hidden: true},
   {path: '/404', component: () => import('@/views/404'), hidden: true},
-  // {
-  //   path: '',
-  //   component: Layout,
-  //   redirect: '/home',
-  //   children: [{
-  //     path: 'home',
-  //     name: 'home',
-  //     component: () => import('@/views/home/index'),
-  //     meta: {title: '首页', icon: 'home'}
-  //   }]
-  // }
+  {
+    path: '',
+    component: Layout,
+    redirect: '/home',
+    children: [{
+      path: 'home',
+      name: 'home',
+      component: () => import('@/views/home/index'),
+      meta: {title: '首页', icon: 'home'}
+    }]
+  }
 ]
 
 export const asyncRouterMap = [
@@ -424,6 +424,12 @@ export const asyncRouterMap = [
         name: 'complicationJun',
         component: () => import('@/views/dms/complicationJun/index'),
         meta: {title: '菌群与并发症'},
+      },
+      {
+        path: 'experimentalResource',
+        name: 'experimentalResource',
+        component: () => import('@/views/dms/experimentalResource/index'),
+        meta: {title: '研究对象'},
       }
     ]
   },
