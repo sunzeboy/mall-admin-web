@@ -430,6 +430,12 @@ export const asyncRouterMap = [
         name: 'experimentalResource',
         component: () => import('@/views/dms/experimentalResource/index'),
         meta: {title: '研究对象'},
+      },
+      {
+        path: 'testResult',
+        name: 'testResult',
+        component: () => import('@/views/dms/testResult/index'),
+        meta: {title: '测试数据'},
       }
     ]
   },

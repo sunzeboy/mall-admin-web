@@ -390,3 +390,36 @@ export function deleteExperimentalResource(params) {
     data:params
   })
 }
+
+
+
+export function createExperimentalResult(params) {
+  return request({
+    url:'/experimental/result/create',
+    method:'post',
+    data:params
+  })
+}
+
+export function listAllExperimentalResults(params) {
+  return request({
+    url:'/experimental/result/listAll',
+    method:'get',
+    params:params
+  })
+}
+
+export function updateExperimentalResult(params) {
+  return request({
+    url:'/experimental/result/update',
+    method:'get',
+    params:params
+  })
+}
+export function deleteExperimentalResult(params) {
+  return request({
+    url:'/experimental/result/delete',
+    method:'post',
+    data:params
+  })
+}
