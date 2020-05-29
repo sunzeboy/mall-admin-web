@@ -177,8 +177,8 @@ export function fetchProductsRelationsList(params) {
 export function updateProductsRelations(params) {
   return request({
     url:'/bacteria/productsRelations/update',
-    method:'get',
-    params:params
+    method:'post',
+    data:params
   })
 }
 export function deleteProductsRelations(params) {
@@ -239,8 +239,8 @@ export function fetchDiseaseRelationsList(params) {
 export function updateDiseaseRelations(params) {
   return request({
     url:'/disease/relations/update',
-    method:'get',
-    params:params
+    method:'post',
+    data:params
   })
 }
 export function deleteDiseaseRelations(params) {
@@ -347,8 +347,8 @@ export function listAllBacteriaRelationsComplications(params) {
 export function updateBacteriaRelationsComplication(params) {
   return request({
     url:'/bacteria/relations/complication/update',
-    method:'get',
-    params:params
+    method:'post',
+    data:params
   })
 }
 export function deleteBacteriaRelationsComplication(params) {
@@ -379,13 +379,13 @@ export function listAllExperimentalResources(params) {
 export function updateExperimentalResource(params) {
   return request({
     url:'/experimental/resource/update',
-    method:'get',
-    params:params
+    method:'post',
+    data:params
   })
 }
 export function deleteExperimentalResource(params) {
   return request({
-    url:'/experimental/resource/delete',
+    url:'/experimental/resource/delete/'+params,
     method:'post',
     data:params
   })
@@ -412,8 +412,8 @@ export function listAllExperimentalResults(params) {
 export function updateExperimentalResult(params) {
   return request({
     url:'/experimental/result/update',
-    method:'get',
-    params:params
+    method:'post',
+    data:params
   })
 }
 export function deleteExperimentalResult(params) {
@@ -421,5 +421,13 @@ export function deleteExperimentalResult(params) {
     url:'/experimental/result/delete',
     method:'post',
     data:params
+  })
+}
+
+export function listPa(params) {
+  return request({
+    url:'/dda/pa/list',
+    method:'get',
+    params:params
   })
 }

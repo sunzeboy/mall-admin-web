@@ -71,12 +71,12 @@
             {{ scope.row.bacteriaNameZh }}
           </template>
         </el-table-column>
-        <el-table-column label="丰度(%)" width="300" align="center">
+        <el-table-column label="丰度(%)" width="100" align="center">
           <template slot-scope="scope">
             {{ scope.row.contentWeight }}
           </template>
         </el-table-column>
-        <el-table-column label="疾病名称" width="300" align="center">
+        <el-table-column label="疾病名称" width="200" align="center">
           <template slot-scope="scope">
             {{ scope.row.diseaseNameZh }}
           </template>

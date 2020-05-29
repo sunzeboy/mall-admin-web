@@ -1,0 +1,254 @@
+<template>
+  <div class="app-container">
+    <el-card class="pb0">
+      <el-form ref="canForm" :inline="true" class="tpl-form-inline pb0">
+        <el-row type="flex" justify="start">
+          <el-form-item label="研究对象编号">
+            <el-select
+              :value="sel_resource.resourceNo"
+              placeholder="请选择"
+              @change="handlePaNoChange"
+            >
+              <el-option
+                v-for="(item, index) in paList"
+                :key="index"
+                :label="item.resourceNo"
+                :value="item"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="时间：">
+            <el-date-picker
+              style="float: right; z-index: 1; width: 370px;"
+              v-model="orderCountDate"
+              type="daterange"
+              align="right"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              @change="handleDateChange"
+              :picker-options="pickerOptions"
+            >
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item class="">
+            <el-button type="primary" @click="queryAct" plain>查询</el-button>
+          </el-form-item>
+        </el-row>
+        <el-row type="flex" justify="start">
+          <div v-for="(item, index) in jun_list" :key="index">
+            <el-form-item class="">
+              <el-autocomplete
+                style="width: 100px;"
+                v-model="item.bacteriaNameZh"
+                :fetch-suggestions="querySearchJunAsync"
+                placeholder="请选择菌类"
+                @select="handleSelectJun($event, index)"
+              ></el-autocomplete>
+            </el-form-item>
+          </div>
+
+          <el-form-item class="">
+            <el-button type="primary" @click="addJun" plain>新增菌类</el-button>
+          </el-form-item>
+        </el-row>
+      </el-form>
+    </el-card>
+
+    <div class="statistics-layout">
+      <div class="layout-title">占比分析</div>
+      <el-row>
+        <div>
+          <ve-line
+            :data="chartData"
+            :loading="loading"
+            :data-empty="dataEmpty"
+            :settings="chartSettings"
+          ></ve-line>
+        </div>
+      </el-row>
+    </div>
+  </div>
+</template>
+
+<script>
+import { str2Date } from "@/utils/date";
+import {
+  listAllExperimentalResources,
+  fetchList,
+  listPa,
+} from "@/api/dmsBacteria.js";
+const defaultListQuery = {
+  keyword: null,
+  pageNum: 1,
+  pageSize: 5,
+  bacteriaType: 1,
+};
+const DATA_FROM_BACKEND = {
+  columns: ["date", "orderCount", "orderAmount"],
+  rows: [
+    { date: "2018-11-01", orderCount: 10, orderAmount: 1093 },
+    { date: "2018-11-02", orderCount: 20, orderAmount: 2230 },
+    { date: "2018-11-03", orderCount: 33, orderAmount: 3623 },
+    { date: "2018-11-04", orderCount: 50, orderAmount: 6423 },
+    { date: "2018-11-05", orderCount: 80, orderAmount: 8492 },
+    { date: "2018-11-06", orderCount: 60, orderAmount: 6293 },
+    { date: "2018-11-07", orderCount: 20, orderAmount: 2293 },
+    { date: "2018-11-08", orderCount: 60, orderAmount: 6293 },
+    { date: "2018-11-09", orderCount: 50, orderAmount: 5293 },
+    { date: "2018-11-10", orderCount: 30, orderAmount: 3293 },
+    { date: "2018-11-11", orderCount: 20, orderAmount: 2293 },
+    { date: "2018-11-12", orderCount: 80, orderAmount: 8293 },
+    { date: "2018-11-13", orderCount: 100, orderAmount: 10293 },
+    { date: "2018-11-14", orderCount: 10, orderAmount: 1293 },
+    { date: "2018-11-15", orderCount: 40, orderAmount: 4293 },
+  ],
+};
+export default {
+  name: "pa",
+  data() {
+    return {
+      startEndDateTime: [],
+      jun_list: [],
+      listQuery: {
+        pageNum: 1,
+        pageSize: 5,
+      },
+      paList: [],
+      pickerOptions: {
+        shortcuts: [
+          {
+            text: "最近一周",
+            onClick(picker) {
+              const end = new Date();
+              let start = new Date();
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 7);
+              picker.$emit("pick", [start, end]);
+            },
+          },
+          {
+            text: "最近一月",
+            onClick(picker) {
+              const end = new Date();
+              let start = new Date();
+              end.setTime(start.getTime() + 3600 * 1000 * 24 * 30);
+              picker.$emit("pick", [start, end]);
+            },
+          },
+        ],
+      },
+      sel_resource: {},
+      loading: false,
+      chartData: {
+        columns: [],
+        rows: [],
+      },
+      dataEmpty: false,
+      chartSettings: {
+        xAxisType: "time",
+        // area: true,
+        // axisSite: { right: ["orderAmount"] },
+        // labelMap: { orderCount: "订单数量", orderAmount: "订单金额" },
+      },
+    };
+  },
+  created() {
+    this.fetchAllExperimentalResources();
+    this.initOrderCountDate();
+    // this.getData();
+  },
+  methods: {
+    addJun() {
+      this.jun_list.push({
+        id: -1,
+        bacteriaNameZh: "",
+        bacteriaName: "",
+        bacteriaType: 0,
+        parentId: 0,
+        value: 0,
+      });
+    },
+    handleSelectJun($event, index) {
+      this.jun_list[index] = $event;
+    },
+    querySearchJunAsync(queryString, cb) {
+      this.loading = true;
+      fetchList({
+        keyword: queryString,
+        pageNum: 1,
+        pageSize: 500,
+      }).then((response) => {
+        this.loading = false;
+        for (let i = 0; i < response.data.list.length; i++) {
+          const element = response.data.list[i];
+          element.value = element.bacteriaNameZh;
+        }
+        cb(response.data.list);
+      });
+    },
+    queryAct() {
+      this.jun_list.forEach((element) => {
+        if (element.id === -1) {
+        } else {
+          listPa({
+            resourceId: this.sel_resource.id,
+            bacteriaId: element.id,
+            startDate: this.orderCountDate[0],
+            endDate: this.orderCountDate[1],
+          }).then((response) => {
+            console.log(response.data);
+            
+            this.chartData.rows = this.chartData.rows.concat(response.data);
+            console.log(this.chartData);
+          });
+        }
+      });
+    },
+    fetchAllExperimentalResources() {
+      this.loading = true;
+      listAllExperimentalResources(this.listQuery).then((response) => {
+        this.loading = false;
+        this.paList = response.data.list;
+      });
+    },
+    handlePaNoChange(e) {
+      this.sel_resource = e;
+    },
+    handleDateChange(e) {
+      this.getData();
+    },
+    initOrderCountDate() {
+      let start = new Date();
+      const end = new Date();
+      end.setTime(start.getTime() + 1000 * 60 * 60 * 24 * 7);
+      this.orderCountDate = [start, end];
+    },
+    getData() {
+      this.chartData = {
+        columns: ["testTime", "bacteriaNameZh", "contentWeight"],
+        rows: [],
+      };
+    },
+  },
+};
+</script>
+
+<style rel="stylesheet/scss" lang="scss" scoped>
+.pb0 {
+  padding-bottom: 0;
+}
+.tpl-form-inline {
+}
+
+.statistics-layout {
+  margin-top: 20px;
+  border: 1px solid #dcdfe6;
+}
+.layout-title {
+  color: #606266;
+  padding: 15px 20px;
+  background: #f2f6fc;
+  font-weight: bold;
+}
+</style>

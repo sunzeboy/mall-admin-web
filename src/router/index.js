@@ -18,9 +18,16 @@ import Layout from '../views/layout/Layout'
     icon: 'svg-name'             the icon show in the sidebar,
   }
  **/
-export const constantRouterMap = [
-  {path: '/login', component: () => import('@/views/login/index'), hidden: true},
-  {path: '/404', component: () => import('@/views/404'), hidden: true},
+export const constantRouterMap = [{
+    path: '/login',
+    component: () => import('@/views/login/index'),
+    hidden: true
+  },
+  {
+    path: '/404',
+    component: () => import('@/views/404'),
+    hidden: true
+  },
   {
     path: '',
     component: Layout,
@@ -29,7 +36,10 @@ export const constantRouterMap = [
       path: 'home',
       name: 'home',
       component: () => import('@/views/home/index'),
-      meta: {title: '首页', icon: 'home'}
+      meta: {
+        title: '首页',
+        icon: 'home'
+      }
     }]
   }
 ]
@@ -291,161 +301,239 @@ export const asyncRouterMap = [
   //   ]
   // },
   {
-    path:'/ums',
+    path: '/ums',
     component: Layout,
     redirect: '/ums/admin',
     name: 'ums',
-    meta: {title: '权限', icon: 'ums'},
-    children: [
-      {
+    meta: {
+      title: '权限',
+      icon: 'ums'
+    },
+    children: [{
         path: 'admin',
         name: 'admin',
         component: () => import('@/views/ums/admin/index'),
-        meta: {title: '用户列表', icon: 'ums-admin'}
+        meta: {
+          title: '用户列表',
+          icon: 'ums-admin'
+        }
       },
       {
         path: 'role',
         name: 'role',
         component: () => import('@/views/ums/role/index'),
-        meta: {title: '角色列表', icon: 'ums-role'}
+        meta: {
+          title: '角色列表',
+          icon: 'ums-role'
+        }
       },
       {
         path: 'allocMenu',
         name: 'allocMenu',
         component: () => import('@/views/ums/role/allocMenu'),
-        meta: {title: '分配菜单'},
+        meta: {
+          title: '分配菜单'
+        },
         hidden: true
       },
       {
         path: 'allocResource',
         name: 'allocResource',
         component: () => import('@/views/ums/role/allocResource'),
-        meta: {title: '分配资源'},
+        meta: {
+          title: '分配资源'
+        },
         hidden: true
       },
       {
         path: 'menu',
         name: 'menu',
         component: () => import('@/views/ums/menu/index'),
-        meta: {title: '菜单列表', icon: 'ums-menu'}
+        meta: {
+          title: '菜单列表',
+          icon: 'ums-menu'
+        }
       },
       {
         path: 'addMenu',
         name: 'addMenu',
         component: () => import('@/views/ums/menu/add'),
-        meta: {title: '添加菜单'},
+        meta: {
+          title: '添加菜单'
+        },
         hidden: true
       },
       {
         path: 'updateMenu',
         name: 'updateMenu',
         component: () => import('@/views/ums/menu/update'),
-        meta: {title: '修改菜单'},
+        meta: {
+          title: '修改菜单'
+        },
         hidden: true
       },
       {
         path: 'resource',
         name: 'resource',
         component: () => import('@/views/ums/resource/index'),
-        meta: {title: '资源列表', icon: 'ums-resource'}
+        meta: {
+          title: '资源列表',
+          icon: 'ums-resource'
+        }
       },
       {
         path: 'resourceCategory',
         name: 'resourceCategory',
         component: () => import('@/views/ums/resource/categoryList'),
-        meta: {title: '资源分类'},
+        meta: {
+          title: '资源分类'
+        },
         hidden: true
       }
     ]
+  },
+  {
+    path: '/dda',
+    component: Layout,
+    redirect: '/dda/pa',
+    name: 'dda',
+    meta: {
+      title: '数据分析',
+      icon: 'product'
+    },
+    children: [{
+      path: 'pa',
+      name: 'pa',
+      component: () => import('@/views/dda/pa/index'),
+      meta: {
+        title: '占比分析',
+        icon: 'ums-admin'
+      }
+    }]
   },
   {
     path: '/dms',
     component: Layout,
     redirect: '/dms/ke',
     name: 'dms',
-    meta: {title: '数据管理', icon: 'ums'},
-    children: [
-      {
+    meta: {
+      title: '数据管理',
+      icon: 'ums'
+    },
+    children: [{
         path: 'ke',
         name: 'ke',
         component: () => import('@/views/dms/ke/index'),
-        meta: {title: '科目', icon: 'ums-admin'}
+        meta: {
+          title: '科目',
+          icon: 'ums-admin'
+        }
       },
       {
         path: 'shu',
         name: 'shu',
         component: () => import('@/views/dms/shu/index'),
-        meta: {title: '属', icon: 'ums-role'}
+        meta: {
+          title: '属',
+          icon: 'ums-role'
+        }
       },
       {
         path: 'zhong',
         name: 'zhong',
         component: () => import('@/views/dms/zhong/index'),
-        meta: {title: '种'}
+        meta: {
+          title: '种'
+        }
       },
       {
         path: 'jun',
         name: 'jun',
         component: () => import('@/views/dms/jun/index'),
-        meta: {title: '菌株'},
+        meta: {
+          title: '菌株'
+        },
       },
       {
         path: 'metabolite',
         name: 'metabolite',
         component: () => import('@/views/dms/metabolite/index'),
-        meta: {title: '代谢产物', icon: 'ums-menu'}
+        meta: {
+          title: '代谢产物',
+          icon: 'ums-menu'
+        }
       },
       {
         path: 'junMetabolite',
         name: 'junMetabolite',
         component: () => import('@/views/dms/junMetabolite/index'),
-        meta: {title: '菌群与代谢产物关系'},
+        meta: {
+          title: '菌群与代谢产物关系'
+        },
       },
       {
         path: 'disease',
         name: 'disease',
         component: () => import('@/views/dms/disease/index'),
-        meta: {title: '疾病'},
+        meta: {
+          title: '疾病'
+        },
       },
       {
         path: 'diseaseJun',
         name: 'diseaseJun',
         component: () => import('@/views/dms/diseaseJun/index'),
-        meta: {title: '疾病与菌株关系', icon: 'ums-resource'}
+        meta: {
+          title: '疾病与菌株关系',
+          icon: 'ums-resource'
+        }
       },
       {
         path: 'complication',
         name: 'complication',
         component: () => import('@/views/dms/complication/index'),
-        meta: {title: '并发症'},
+        meta: {
+          title: '并发症'
+        },
       },
       {
         path: 'complicationJun',
         name: 'complicationJun',
         component: () => import('@/views/dms/complicationJun/index'),
-        meta: {title: '菌群与并发症'},
+        meta: {
+          title: '菌群与并发症'
+        },
       },
       {
         path: 'experimentalResource',
         name: 'experimentalResource',
         component: () => import('@/views/dms/experimentalResource/index'),
-        meta: {title: '研究对象'},
+        meta: {
+          title: '研究对象'
+        },
       },
       {
         path: 'testResult',
         name: 'testResult',
         component: () => import('@/views/dms/testResult/index'),
-        meta: {title: '测试数据'},
+        meta: {
+          title: '测试数据'
+        },
       }
     ]
   },
-  {path: '*', redirect: '/dms', hidden: true},
-  
+  {
+    path: '*',
+    redirect: '/dms',
+    hidden: true
+  },
+
 ]
 
 export default new Router({
   // mode: 'history', //后端支持可开
-  scrollBehavior: () => ({y: 0}),
+  scrollBehavior: () => ({
+    y: 0
+  }),
   routes: constantRouterMap
 })
-
