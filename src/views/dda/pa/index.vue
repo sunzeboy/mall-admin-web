@@ -59,14 +59,7 @@
     <div class="statistics-layout">
       <div class="layout-title">占比分析</div>
       <el-row>
-        <div>
-          <ve-line
-            :data="chartData"
-            :loading="loading"
-            :data-empty="dataEmpty"
-            :settings="chartSettings"
-          ></ve-line>
-        </div>
+        <div id="echarts" :style="{ width: '900px', height: '300px' }"></div>
       </el-row>
     </div>
   </div>
@@ -74,37 +67,20 @@
 
 <script>
 import { str2Date } from "@/utils/date";
+import echarts from "echarts";
 import {
   listAllExperimentalResources,
   fetchList,
   listPa,
 } from "@/api/dmsBacteria.js";
+
 const defaultListQuery = {
   keyword: null,
   pageNum: 1,
   pageSize: 5,
   bacteriaType: 1,
 };
-const DATA_FROM_BACKEND = {
-  columns: ["date", "orderCount", "orderAmount"],
-  rows: [
-    { date: "2018-11-01", orderCount: 10, orderAmount: 1093 },
-    { date: "2018-11-02", orderCount: 20, orderAmount: 2230 },
-    { date: "2018-11-03", orderCount: 33, orderAmount: 3623 },
-    { date: "2018-11-04", orderCount: 50, orderAmount: 6423 },
-    { date: "2018-11-05", orderCount: 80, orderAmount: 8492 },
-    { date: "2018-11-06", orderCount: 60, orderAmount: 6293 },
-    { date: "2018-11-07", orderCount: 20, orderAmount: 2293 },
-    { date: "2018-11-08", orderCount: 60, orderAmount: 6293 },
-    { date: "2018-11-09", orderCount: 50, orderAmount: 5293 },
-    { date: "2018-11-10", orderCount: 30, orderAmount: 3293 },
-    { date: "2018-11-11", orderCount: 20, orderAmount: 2293 },
-    { date: "2018-11-12", orderCount: 80, orderAmount: 8293 },
-    { date: "2018-11-13", orderCount: 100, orderAmount: 10293 },
-    { date: "2018-11-14", orderCount: 10, orderAmount: 1293 },
-    { date: "2018-11-15", orderCount: 40, orderAmount: 4293 },
-  ],
-};
+
 export default {
   name: "pa",
   data() {
@@ -140,23 +116,39 @@ export default {
       },
       sel_resource: {},
       loading: false,
-      chartData: {
-        columns: [],
-        rows: [],
+      option: {
+        title: {
+          text: "占比分析",
+        },
+        tooltip: {
+          trigger: "axis",
+        },
+        legend: {
+          data: [],
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {},
+          },
+        },
+        xAxis: {
+          type: "time",
+        },
+        yAxis: {
+          type: "value",
+        },
+        series: [],
       },
-      dataEmpty: false,
-      chartSettings: {
-        xAxisType: "time",
-        // area: true,
-        // axisSite: { right: ["orderAmount"] },
-        // labelMap: { orderCount: "订单数量", orderAmount: "订单金额" },
-      },
+      myChart: null,
     };
+  },
+  mounted() {
+    this.myChart = echarts.init(document.getElementById("echarts"));
+    this.myChart.setOption(this.option);
   },
   created() {
     this.fetchAllExperimentalResources();
     this.initOrderCountDate();
-    // this.getData();
   },
   methods: {
     addJun() {
@@ -188,6 +180,10 @@ export default {
       });
     },
     queryAct() {
+      this.option.series = [];
+      this.option.legend.data = [];
+      let delt = 0;
+      
       this.jun_list.forEach((element) => {
         if (element.id === -1) {
         } else {
@@ -197,10 +193,23 @@ export default {
             startDate: this.orderCountDate[0],
             endDate: this.orderCountDate[1],
           }).then((response) => {
-            console.log(response.data);
-            
-            this.chartData.rows = this.chartData.rows.concat(response.data);
-            console.log(this.chartData);
+            delt++;
+            if (response.data.length > 0) {
+              let arr = [];
+              response.data.forEach((element) => {
+                arr.push([element.testTime, element.contentWeight]);
+              });
+              this.option.legend.data.push(element.bacteriaNameZh);
+              this.option.series.push({
+                name: element.bacteriaNameZh,
+                type: "line",
+                stack: "总量",
+                data: arr,
+              });
+            }
+            if (delt === this.jun_list.length) {
+              this.myChart.setOption(this.option);
+            }
           });
         }
       });
@@ -216,19 +225,14 @@ export default {
       this.sel_resource = e;
     },
     handleDateChange(e) {
-      this.getData();
+      // console.log(this.orderCountDate);
+      // this.orderCountDate = e;
     },
     initOrderCountDate() {
       let start = new Date();
       const end = new Date();
       end.setTime(start.getTime() + 1000 * 60 * 60 * 24 * 7);
       this.orderCountDate = [start, end];
-    },
-    getData() {
-      this.chartData = {
-        columns: ["testTime", "bacteriaNameZh", "contentWeight"],
-        rows: [],
-      };
     },
   },
 };
