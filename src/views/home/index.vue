@@ -111,7 +111,6 @@ export default {
     };
   },
   mounted() {
-    console.log("mounted");
     this.listLoading = true;
     fetchList({
       pageNum: 1,
@@ -190,7 +189,7 @@ export default {
     generateOptions(params) {
       var result = [];
       for (let param of params) {
-        if (param.parentId == 0) {
+        if (param.parentId == 0 || param.parentId == null) {
           var parent = {
             name: param.bacteriaName,
             value: param.id,
