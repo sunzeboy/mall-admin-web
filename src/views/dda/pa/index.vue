@@ -86,6 +86,7 @@ export default {
   data() {
     return {
       startEndDateTime: [],
+      orderCountDate:[],
       jun_list: [],
       listQuery: {
         pageNum: 1,
